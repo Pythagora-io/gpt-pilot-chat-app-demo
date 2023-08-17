@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eeeeee;
+    }
+    #messages {
+      height: 400px;
+      overflow: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    #messages p {
+      padding: 5px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+    }
+ </style>
+</head>
+<body>
+  <div class='container'>
+    <h1 class='mt-5 mb-5 text-center'>Chat App</h1>
+    <div class='card mb-4 shadow'>
+      <div class='card-body' id='messages'></div>
+    </div>
+    <form id="form" action="" class="form-inline">
+      <input id='u' autocomplete='off' class='form-control mb-3 mr-2' placeholder='Username' />
+      <input id='m' autocomplete="off" id='m' autocomplete='off' class='form-control mb-3 mr-2' placeholder='Type a message...' />
+      <button type='submit' class='btn btn-primary'>Send</button>
+    </form>
+  </div>
+  <script src='/socket.io/socket.io.js'></script>
+  <script src='https://code.jquery.com/jquery-3.4.1.min.js'></script>
+  <script>
+  const socket = io();
+
+  $('form').submit(function(e) { 
+    e.preventDefault(); 
+    var nickname = $('#u').val();
+    if(nickname == null || nickname == '') { 
+      alert('Enter your nickname!'); 
+    }
+    else {
+      socket.emit('message', { sender: nickname, receiver: 'User2', text: $('#m').val() }); 
+      $('#m').val(''); 
+      $('#n').attr('readonly', true); 
+    }
+  });
+
+  socket.on('message', function(msg) {
+    $('#messages').append($('<p>').text(msg.sender + ': ' + msg.text));
+  });
+
+  socket.emit('history', { user1: 'User1', user2: 'User2' });
+
+  socket.on('history', function(messages) {
+    $('#messages').empty();
+    for(let message of messages) {
+      $('#messages').append($('<p>').text(message.sender + ': ' + message.text));
+    }
+  });
+  </script>
+</body>
+</html>
